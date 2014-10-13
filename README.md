@@ -7,8 +7,6 @@ This tool creates preview panoramas from images created by the Elphel Eyesis 4π
 
 ### Table of Contents
 - [Elphel panorama preview generator.](#elphel-preview-generatorbr-elphel-panorama-preview-generator)
-  - [Description](#description)
-  - [Table of Contents](#table-of-contents)
   - [Usage](#usage)
   - [Example usage scenarios](#example-usage-scenarios)
   - [Copyright](#copyright)
