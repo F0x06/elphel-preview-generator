@@ -6,11 +6,13 @@
 This tool creates preview panoramas from images created by the Elphel Eyesis 4π camera.
 
 ### Table of Contents
-- [Elphel panorama preview generator.](#user-content-elphel-panorama-preview-generator)
-    - [Usage](#user-content-usage)
-    - [Example usage scenarios](#user-content-example-usage-scenarios)
-    - [Copyright](#user-content-copyright)
-    - [License](#user-content-license)
+- [Elphel panorama preview generator.](#elphel-preview-generatorbr-elphel-panorama-preview-generator)
+  - [Description](#description)
+  - [Table of Contents](#table-of-contents)
+  - [Usage](#usage)
+  - [Example usage scenarios](#example-usage-scenarios)
+  - [Copyright](#copyright)
+  - [License](#license)
 
 ### Usage
     Usage: ./preview_generator.py [OPTIONS]
