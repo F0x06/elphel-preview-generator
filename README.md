@@ -7,10 +7,33 @@ This tool creates preview panoramas from images created by the Elphel Eyesis 4π
 
 ### Table of Contents
 - [Elphel panorama preview generator.](#elphel-preview-generatorbr-elphel-panorama-preview-generator)
+  - [Dependencies](#dependencies)
+    - [Details](#details)
+    - [Installation](#installation)
+      - [Movie2dng](#movie2dng)
+      - [imagemagick & dcraw](#imagemagick-&-dcraw)
   - [Usage](#usage)
   - [Example usage scenarios](#example-usage-scenarios)
   - [Copyright](#copyright)
   - [License](#license)
+
+### Dependencies
+
+#### Details
+
+1. [Movie2dng](http://wiki.elphel.com/index.php?title=Movie2dng)
+2. [imagemagick](http://www.imagemagick.org/)
+3. [dcraw](http://www.cybercom.net/~dcoffin/dcraw/)
+
+#### Installation
+
+##### Movie2dng
+
+[http://wiki.elphel.com/index.php?title=Movie2dng](http://wiki.elphel.com/index.php?title=Movie2dng)
+
+##### imagemagick & dcraw
+    sudo apt-get install imagemagick dcraw
+
 
 ### Usage
     Usage: ./preview_generator.py [OPTIONS]
