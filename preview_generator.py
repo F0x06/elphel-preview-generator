@@ -357,10 +357,32 @@ def main(argv):
         _usage()
         sys.exit()
 
+
+    # Check required programs
+    Error = 0
+
+    # Check presence of ImageMagick
+    if not which("convert"):
+        ShowMessage("ImageMagick not installed, install it with 'sudo apt-get install imagemagick'", 2, 0)
+        Error = 1
+
+    # Check presence of dcraw
+    if not which("dcraw"):
+        ShowMessage("dcraw not installed, install it with 'sudo apt-get install dcraw'", 2, 0)
+        Error = 1
+
+    # Check presence of movie2dng
+    if not which("movie2dng"):
+        ShowMessage("movie2dng not installed, see http://wiki.elphel.com/index.php?title=Movie2dng", 2, 0)
+        Error = 1
+
+    # Exif if dependencies are not installed
+    if Error: return
+
     # Remove previous files if exists
     if os.path.isdir(__Temp__):
-        os.system("rm %s/*.jpeg" % __Temp__)
-        os.system("rm %s/tiles/*.jpeg" % __Temp__)
+        os.system("rm %s/*.jpeg 2> /dev/null" % __Temp__)
+        os.system("rm %s/tiles/*.jpeg 2> /dev/null" % __Temp__)
 
     # Create temp folder
     os.system("mkdir -p %s/tiles" % __Temp__)
