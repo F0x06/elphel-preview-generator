@@ -48,6 +48,12 @@ import sys
 
 from datetime import datetime
 
+# Static parameters
+CAMERA_ARRAY = {
+    '00:0E:64:08:1B:6E': 1,
+    '00:0E:64:08:1C:D2': 2
+}
+
 # Global variables
 NO_COLORS = 0
 
@@ -254,35 +260,70 @@ def getSeq(List, _sequences):
     return Result
 
 # Function to stitch a set of tiles
-def StitchPano(_tilesdir, _output, _temp, _grayscale=0):
+def StitchPano(_tilesdir, _output, _temp, _grayscale=0, _camera=2):
 
     # Retrieve file list
     List = sorted(glob.glob("%s/*_0.jpeg" % _tilesdir))
 
-    # Check presence of grayscale option
-    if _grayscale:
+    # Camera 1 parameters
+    if _camera == 1:
 
-        # Compute crowns
-        TopList = getSeq(List, [2, 2, 2, 2, 2, 2, 2, 2])
-        MidList = getSeq(List, [1, 1, 1, 1, 1, 1, 1, 1])
-        BotList = getSeq(List, [0, 0, 0, 0, 0, 0, 0, 0])
+        # Check presence of grayscale option
+        if _grayscale:
 
-        # Flop images
-        for i in TopList[1::2]:
-            os.system("convert -flop %s %s" % (i, i))
+            # Compute crowns
+            TopList = getSeq(List, [2, 2, 2, 2, 2, 2, 2, 2])
+            MidList = getSeq(List, [1, 1, 1, 1, 1, 1, 1, 1])
+            BotList = getSeq(List, [0, 0, 0, 0, 0, 0, 0, 0])
 
-        for i in MidList[1::2]:
-            os.system("convert -flop %s %s" % (i, i))
+            # Flop images
+            for i in TopList[1::2]:
+                os.system("convert -flop %s %s" % (i, i))
 
-        for i in BotList[1::2]:
-            os.system("convert -flop %s %s" % (i, i))
+            for i in MidList[1::2]:
+                os.system("convert -flop %s %s" % (i, i))
 
-    else:
+            for i in BotList[1::2]:
+                os.system("convert -flop %s %s" % (i, i))
 
-        # Compute crowns
-        TopList = getSeq(List, [2, 0, 2, 0, 2, 0, 2, 0])
-        MidList = getSeq(List, [1, 1, 1, 1, 1, 1, 1, 1])
-        BotList = getSeq(List, [0, 2, 0, 2, 0, 2, 0, 2])
+        else:
+
+            # Compute crowns
+            TopList = getSeq(List, [2, 0, 2, 0, 2, 0, 2, 0])
+            MidList = getSeq(List, [1, 1, 1, 1, 1, 1, 1, 1])
+            BotList = getSeq(List, [0, 2, 0, 2, 0, 2, 0, 2])
+
+    elif _camera == 2:
+
+        # Check presence of grayscale option
+        if _grayscale:
+
+            # Compute crowns
+            TopList = getSeq(List, [2, 2, 2, 2, 2, 2, 2, 2])
+            MidList = getSeq(List, [1, 1, 1, 1, 1, 1, 1, 1])
+            BotList = getSeq(List, [0, 0, 0, 0, 0, 0, 0, 0])
+
+            # Flop images
+            for i in TopList[1::2]:
+                os.system("convert -flop %s %s" % (i, i))
+
+            for i in MidList[1::2]:
+                os.system("convert -flop %s %s" % (i, i))
+
+            for i in BotList[1::2]:
+                os.system("convert -flop %s %s" % (i, i))
+
+        else:
+
+            # Compute crowns
+            TopList = getSeq(List, [2, 0, 0, 0, 2, 0, 2, 0])
+            MidList = getSeq(List, [1, 1, 1, 1, 1, 1, 1, 1])
+            BotList = getSeq(List, [0, 2, 2, 2, 0, 2, 0, 2])
+
+            # Flip images
+            os.system("convert -flip %s %s" % (TopList[2], TopList[2]))
+            os.system("convert -flip %s %s" % (MidList[2], MidList[2]))
+            os.system("convert -flip %s %s" % (BotList[2], BotList[2]))
 
     # Generate 3 crowns (top, middle, bottom)
     os.system("montage -mode concatenate -tile 8x %s %s/top.jpeg" % (' '.join(TopList), _temp))
@@ -297,6 +338,13 @@ def StitchPano(_tilesdir, _output, _temp, _grayscale=0):
     os.remove("%s/mid.jpeg" % _temp)
     os.remove("%s/bot.jpeg" % _temp)
 
+# Function to get camera ID from is MAC address
+def GetCameraID(_MAC):
+    if _MAC in CAMERA_ARRAY:
+        return CAMERA_ARRAY[_MAC]
+    else:
+        ShowMessage("Invalid MAC address '%s'" % (_MAC), 2, 1)
+
 # Usage display function
 def _usage():
     print """
@@ -305,8 +353,10 @@ def _usage():
     [Required arguments]
     -i --input          Input JP4 folder
     -o --output         Output JPEG folder
+    -m --mac            Camera MAC address
 
     [Optional arguments]
+    -l --listmacs       List cameras mac addresses
     -h --help           Prints this
     -p --parallel       Use GNU parallel
     -g --grayscale      Write grayscale images (without debayer)
@@ -321,6 +371,7 @@ def main(argv):
     __Output__       = ""
     __Parallel__     = 0
     __GrayScale__    = 0
+    __Camera__       = 2
     __Temp__         = "/tmp/preview-generator"
 
     # Scope variables initialisation
@@ -329,7 +380,7 @@ def main(argv):
 
     # Arguments parser
     try:
-        opt, args = getopt.getopt(argv, "hi:o:pg", ["help", "input=", "output=", "parallel", "grayscale"])
+        opt, args = getopt.getopt(argv, "hi:o:m:pgl", ["help", "input=", "output=", "mac=", "parallel", "grayscale", "listmacs"])
         args = args
     except getopt.GetoptError, err:
         print str(err)
@@ -343,6 +394,8 @@ def main(argv):
             __Input__  = a.rstrip('/')
         elif o in ("-o", "--output"):
             __Output__  = a.rstrip('/')
+        elif o in ("-m", "--mac"):
+            __Camera__  = GetCameraID(a)
         elif o in ("-p", "--parallel"):
             if which("parallel"):
                 __Parallel__ = 1
@@ -350,13 +403,16 @@ def main(argv):
                 ShowMessage("GNU parallel not found, install it with 'sudo apt-get install parallel'", 2, 1)
         elif o in ("-g", "--grayscale"):
             __GrayScale__ = 1
+        elif o in ("-l", "--listmacs"):
+            for i, elem in enumerate(CAMERA_ARRAY):
+                print("%d: %s" % (i+1, elem))
+            return
         else:
             assert False, "unhandled option"
 
     if not __Input__ or not __Output__:
         _usage()
         sys.exit()
-
 
     # Check required programs
     Error = 0
@@ -440,7 +496,7 @@ def main(argv):
         ShowMessage("Stitching panorama")
 
         # Stitch panorama
-        StitchPano("%s/tiles" % __Temp__, "%s/%s.jpeg" % (__Output__, ts), __Temp__, __GrayScale__)
+        StitchPano("%s/tiles" % __Temp__, "%s/%s.jpeg" % (__Output__, ts), __Temp__, __GrayScale__, __Camera__)
 
         # Remove temporary files
         os.system("rm %s/*.jpeg" % __Temp__)
